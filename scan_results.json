@@ -1,0 +1,13 @@
+{
+    "/Users/samarthasgowda/dummy_clean.raw": {
+        "status": "clean",
+        "matches": []
+    },
+    "/Users/samarthasgowda/dummy_infected.raw": {
+        "status": "infected",
+        "matches": [
+            "FakeMalwareRule"
+        ],
+        "remediated_file": "/Users/samarthasgowda/dummy_infected_cleaned.raw"
+    }
+}

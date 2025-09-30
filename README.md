@@ -28,38 +28,38 @@ It supports analyzing memory dumps (real or dummy), detecting suspicious pattern
 
 git clone https://github.com/samarthasgowda/final.git
 cd final
+
 2. Set up Python environment (recommended)
 On macOS / Linux
-bash
-Copy code
+
 python3 -m venv ~/ramenv
 source ~/ramenv/bin/activate
+
 On Windows (PowerShell)
 powershell
-Copy code
+
+
 python -m venv ramenv
 .\ramenv\Scripts\activate
-3. Install dependencies
-bash
-Copy code
+
+4. Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
+
 If requirements.txt is missing, you can manually install:
 
-bash
-Copy code
 pip install volatility3 yara-python pefile capstone
+
 4. Install Volatility 3 (optional but recommended)
-bash
-Copy code
+
 # Inside your environment
 git clone https://github.com/volatilityfoundation/volatility3.git
 cd volatility3
 pip install -e .
+
 🖥️ Usage
 Create dummy memory dumps (for testing)
-bash
-Copy code
+
 # Clean dummy (safe)
 dd if=/dev/zero of=$HOME/dummy_clean.raw bs=1m count=10
 
@@ -67,16 +67,15 @@ dd if=/dev/zero of=$HOME/dummy_clean.raw bs=1m count=10
 dd if=/dev/urandom of=$HOME/dummy_infected.raw bs=1m count=10
 echo "MALWARE_TEST_SIGNATURE" | dd of=$HOME/dummy_infected.raw bs=1 seek=1000 conv=notrunc
 Run malware scan directly
-bash
-Copy code
+
 python malware_scan.py $HOME/dummy_clean.raw $HOME/dummy_infected.raw
 Run full forensic pipeline
-bash
-Copy code
+
 python ram_forensic_pipeline.py \
   --out $HOME/ram_reports \
   --volcmd "python /path/to/volatility3/vol.py" \
   $HOME/dummy_clean.raw $HOME/dummy_infected.raw
+  
 📂 Output
 The pipeline produces:
 

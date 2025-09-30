@@ -25,7 +25,7 @@ This project is educational and demonstrates how live memory analysis pipelines 
 
 ### 1. Clone the repository
 
-git clone https://github.com/<your-username>/final.git 
+git clone [https://github.com/<your-username>/final.git ](https://github.com/samarthasgowda/ram_forensic_pipeline_adv.git)
 cd final
 
 ### 2. Create a Python environment

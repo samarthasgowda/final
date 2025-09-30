@@ -83,7 +83,7 @@ Example JSON Output:
 
 {
   "/Users/samarthasgowda/dummy_clean.raw": {
-    "meta": {
+     "meta": {
       "image": "/Users/samarthasgowda/dummy_clean.raw",
       "sha256": "e5b844cc57f57094ea4585e235f36c78c1cd222262bb89d53c94dcb4d6b3e55d",
       "analyzed_at": "2025-09-30T07:47:03Z",

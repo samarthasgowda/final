@@ -1,149 +1,145 @@
 # 🧩 RAM Forensic Pipeline
 
-A cross-platform memory forensics and malware remediation pipeline.  
-This project simulates memory analysis workflows using [Volatility 3](https://github.com/volatilityfoundation/volatility3), YARA rules, and custom remediation logic.  
-
-It supports analyzing memory dumps (real or dummy), detecting suspicious patterns, remediating known malware signatures, and generating detailed JSON reports.
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)  
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## 🚀 Features
+## 📖 Overview
 
-- 📦 **Acquire & analyze memory dumps**  
-- 🕵️ **Malware detection using YARA signatures**  
-- 🧹 **Automatic remediation** of infected dumps (replace malicious signatures with safe placeholders)  
-- 📊 **Detailed JSON reports** (per dump and summary) with:
-  - Metadata (hash, tool, timestamp)
-  - Extracted features (entropy, process count, dll estimates, etc.)
-  - YARA matches
-  - Suspicious offsets
-  - Remediation results
-  - Volatility output index (if available)
+The **RAM Forensic Pipeline** is a Python-based framework for analyzing memory dumps.  
+It can:
+
+- Capture or analyze RAM dumps
+- Perform **malware signature detection** (via fake YARA-like rules)
+- Calculate entropy and basic memory features
+- Simulate Volatility 3 plugin output
+- Automatically **remediate infected memory images**
+- Generate structured **JSON reports**
+
+This project is educational and demonstrates how live memory analysis pipelines can be built for malware detection and forensic research.
 
 ---
 
-## ⚙️ Installation
+## 📥 Installation & Usage Guide
 
 ### 1. Clone the repository
 
-git clone https://github.com/samarthasgowda/final.git
+git clone https://github.com/<your-username>/final.git
 cd final
 
-2. Set up Python environment (recommended)
-On macOS / Linux
+### 2. Create a Python environment
+Recommended: Python 3.10 or 3.11
 
-python3 -m venv ~/ramenv
-source ~/ramenv/bin/activate
+macOS / Linux
 
-On Windows (PowerShell)
-powershell
+python3 -m venv ramenv
+source ramenv/bin/activate
 
+Windows (PowerShell)
 
 python -m venv ramenv
-.\ramenv\Scripts\activate
+ramenv\Scripts\activate
 
-4. Install dependencies
+### 3. Install dependencies
+
+All requirements are pinned in requirements.txt.
+
 pip install --upgrade pip
 pip install -r requirements.txt
 
-If requirements.txt is missing, you can manually install:
+### 4. Prepare test RAM dumps
 
-pip install volatility3 yara-python pefile capstone
+Since real RAM dumps are large, you can generate dummy files for testing:
 
-4. Install Volatility 3 (optional but recommended)
-
-# Inside your environment
-git clone https://github.com/volatilityfoundation/volatility3.git
-cd volatility3
-pip install -e .
-
-🖥️ Usage
-Create dummy memory dumps (for testing)
-
-# Clean dummy (safe)
+# Clean RAM image
 dd if=/dev/zero of=$HOME/dummy_clean.raw bs=1m count=10
 
-# Infected dummy (with fake malware signature)
+# Infected RAM image with malware signature
 dd if=/dev/urandom of=$HOME/dummy_infected.raw bs=1m count=10
 echo "MALWARE_TEST_SIGNATURE" | dd of=$HOME/dummy_infected.raw bs=1 seek=1000 conv=notrunc
-Run malware scan directly
 
-python malware_scan.py $HOME/dummy_clean.raw $HOME/dummy_infected.raw
-Run full forensic pipeline
+### 5. Run malware scan
 
-python ram_forensic_pipeline.py \
-  --out $HOME/ram_reports \
-  --volcmd "python /path/to/volatility3/vol.py" \
-  $HOME/dummy_clean.raw $HOME/dummy_infected.raw
-  
-📂 Output
-The pipeline produces:
+python malware_scan.py $HOME/ram_reports $HOME/dummy_clean.raw $HOME/dummy_infected.raw
 
-Per-dump JSON reports:
+This will:
 
-dummy_clean.raw.analysis.json
+Create an output directory: $HOME/ram_reports
 
-dummy_infected.raw.analysis.json
+Write a JSON report file:
 
-Summary file:
+ram_reports/scan_report_<timestamp>.json
 
-ram_pipeline_summary_20250930T120000Z.json
+Print the same JSON in your terminal
 
-Remediated dumps (if malware found):
+### 6. View results
 
-dummy_infected_cleaned.raw
+In terminal (pretty-print with jq):
 
-Example JSON (infected)
-json
-Copy code
+cat $HOME/ram_reports/scan_report_*.json | jq
+
+Example JSON Output:
+
 {
-  "meta": {
-    "image": "/Users/user/dummy_infected.raw",
-    "sha256": "51c2a8e0d2da7138dd6156a0ec31a03d02079150470718b54ec2a73626464b51",
-    "analyzed_at": "2025-09-30T07:25:11.953614Z",
-    "tool": "malware_scan.py"
+  "/Users/samarthasgowda/dummy_clean.raw": {
+    "meta": {
+      "image": "/Users/samarthasgowda/dummy_clean.raw",
+      "sha256": "e5b844cc57f57094ea4585e235f36c78c1cd222262bb89d53c94dcb4d6b3e55d",
+      "analyzed_at": "2025-09-30T07:47:03Z",
+      "tool": "ram_forensic_pipeline.py"
+    },
+    "features": {
+      "malfind_hits": false,
+      "sample_entropy": 0.0
+    },
+    "remediation": {
+      "status": "not_needed"
+    },
+    "explanation": "No test malware signatures found. Entropy: 0.0000. No remediation necessary."
   },
-  "features": {
-    "malfind_hits": true,
-    "process_count": 0,
-    "dll_count_approx": 0,
-    "net_entries": 0,
-    "sample_entropy": 7.9999817398587245,
-    "rwx_estimate": 1
-  },
-  "yara_matches": ["FakeMalwareRule"],
-  "suspicious_files": [
-    { "offset": 1000, "signature": "MALWARE_TEST_SIGNATURE" }
-  ],
-  "remediation": {
-    "status": "success",
-    "output_file": "/Users/user/dummy_infected_cleaned.raw",
-    "replaced_with": "SAFE_CLEANED_DATA_______"
-  },
-  "vol_outputs_index": {}
+  "/Users/samarthasgowda/dummy_infected.raw": {
+    "meta": {
+      "image": "/Users/samarthasgowda/dummy_infected.raw",
+      "sha256": "b445fd0fd48417566b61d57bab523b5a84ac52a8fe3bed0ae3053b9c8b4a692a",
+      "analyzed_at": "2025-09-30T07:47:08Z",
+      "tool": "ram_forensic_pipeline.py"
+    },
+    "features": {
+      "malfind_hits": true,
+      "sample_entropy": 7.9999
+    },
+    "yara_matches": [
+      "FakeMalwareRule"
+    ],
+    "suspicious_files": [
+      {
+        "offset": 1000,
+        "signature": "MALWARE_TEST_SIGNATURE"
+      }
+    ],
+    "remediation": {
+      "status": "success",
+      "output_file": "/Users/samarthasgowda/ram_reports/dummy_infected_cleaned.raw",
+      "replaced_with": "SAFE_CLEANED_DATA_______"
+    },
+    "explanation": "Malware signature(s) found: FakeMalwareRule. Located at offset(s): 1000. Entropy: 8.0000. Remediation attempted: success."
+  }
 }
-🏗️ Project Structure
-php
-Copy code
-final/
-├── analysis/                 # Volatility integration
-│   └── volatility_runner.py
-├── remediation/              # Remediation logic
-│   └── remediation.py
-├── main.py                   # CLI entry point
-├── malware_scan.py           # Malware scanner + remediation
-├── ram_forensic_pipeline.py  # Multi-dump pipeline & reporting
-├── scan_results.json         # Example result
-└── README.md                 # This file
-📜 License
-This project is licensed under the MIT License.
-You are free to use, modify, and distribute it with attribution.
 
-See the LICENSE file for details.
+⚖️ License
 
-🙏 Acknowledgements
-Volatility Foundation for Volatility 3
+This project is released under the MIT License.
+You are free to use, modify, and distribute this project with attribution.
 
-YARA for malware pattern matching
+✅ Summary
 
-Open source contributors & researchers in memory forensics
+After following these steps, you will have a reproducible pipeline that:
+
+Scans RAM dumps
+
+Detects malware signatures
+
+Cleans infected images
+
+Produces detailed JSON reports
